@@ -1,27 +1,50 @@
-# Tock OS Configurator
+# TockOS Configurator
 
-This directory contains the code for:
-- a visual tool for configuring Tock OS for one of the supported platforms
-- a code generator for the base Tock OS code for the selected configuration
+![](docs/demo.gif)
 
-## Prerequisites
+#### How to use
 
-TODO!
+Run the following commands:
 
-## Steps for using the configurator
+```shell
+$ cargo install --path configurator # install the configurator binary
+$ tock-configurator # run the configuration menu TUI app
+```
 
-TODO!
+After configuring the platform, you should see a file named `.config.json`, similar
+to this:
 
-## License
+```json
+{
+  "TYPE": "Microbit",
+  "CAPSULES": {
+    "ALARM": {
+      "timer": [
+        "Rtc"
+      ]
+    },
+    "CONSOLE": {
+      "uart": [
+        "Uart0"
+      ],
+      "baud_rate": 112500
+    }
+  },
+  "SCHEDULER": "Cooperative",
+  "PROCESS_COUNT": 0,
+  "STACK_SIZE": 2304,
+  "SYSCALL_FILTER": "None"
+}
+```
 
-This configurator is licensed under either of:
+The crate `tock-generator` deals with parsing the configuration file into
+`Rust` code. Add it as a dependency in your crate.
 
-- Apache License, Version 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0)
-- MIT license (LICENSE-MIT or http://opensource.org/licenses/MIT)
-at your option.
+```rust
+use tock_generator::{TockMain, Nrf52833};
 
-## Contributions
+let tock_main = TockMain::from_json(Nrf52833::default(), ".config.json")?;
+tock_main.write_to_file("main.rs")?;
+```
 
-We welcome contributions from all.
-
-Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in the work by you, as defined in the Apache-2.0 license, shall be dual licensed as above, without any additional terms or conditions.
+**Currently work in progress 🚧**
